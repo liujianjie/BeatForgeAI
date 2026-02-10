@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BeatForge AI - AI电音制作工作站</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #0a0a1a 0%, #1a0a2e 50%, #0a1a2e 100%);
+            color: #e0e0e0;
+            min-height: 100vh;
+        }
+
+        /* 头部 */
+        .header {
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(138, 43, 226, 0.3);
+            padding: 16px 32px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #8a2be2, #00d4ff);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .logo h1 {
+            font-size: 24px;
+            background: linear-gradient(90deg, #8a2be2, #00d4ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 700;
+        }
+
+        .logo span {
+            font-size: 12px;
+            color: #888;
+        }
+
+        .status-badge {
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .status-badge.online {
+            background: rgba(0, 255, 100, 0.1);
+            border: 1px solid rgba(0, 255, 100, 0.3);
+            color: #00ff64;
+        }
+
+        .status-badge.offline {
+            background: rgba(255, 50, 50, 0.1);
+            border: 1px solid rgba(255, 50, 50, 0.3);
+            color: #ff3232;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        .status-dot.online { background: #00ff64; }
+        .status-dot.offline { background: #ff3232; }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+
+        /* 主内容 */
+        .main {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 32px 24px;
+        }
+
+        /* 生成面板 */
+        .panel {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(138, 43, 226, 0.2);
+            border-radius: 16px;
+            padding: 28px;
+            margin-bottom: 24px;
+        }
+
+        .panel-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .panel-title .icon {
+            font-size: 22px;
+        }
+
+        /* 表单 */
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 14px;
+            color: #aaa;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 16px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(138, 43, 226, 0.3);
+            border-radius: 10px;
+            color: #e0e0e0;
+            font-size: 15px;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            border-color: #8a2be2;
+            box-shadow: 0 0 15px rgba(138, 43, 226, 0.2);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .form-row-3 {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 16px;
+        }
+
+        /* 风格选择 */
+        .style-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+        }
+
+        .style-card {
+            padding: 12px;
+            background: rgba(0, 0, 0, 0.2);
+            border: 2px solid rgba(138, 43, 226, 0.15);
+            border-radius: 10px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        .style-card:hover {
+            border-color: rgba(138, 43, 226, 0.5);
+            background: rgba(138, 43, 226, 0.1);
+        }
+
+        .style-card.active {
+            border-color: #8a2be2;
+            background: rgba(138, 43, 226, 0.2);
+            box-shadow: 0 0 20px rgba(138, 43, 226, 0.3);
+        }
+
+        .style-card .name {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .style-card .desc {
+            font-size: 11px;
+            color: #888;
+        }
+
+        /* 滑块 */
+        .slider-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .slider-container input[type="range"] {
+            flex: 1;
+            -webkit-appearance: none;
+            height: 6px;
+            background: rgba(138, 43, 226, 0.3);
+            border-radius: 3px;
+            border: none;
+            padding: 0;
+        }
+
+        .slider-container input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            background: #8a2be2;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        .slider-value {
+            min-width: 40px;
+            text-align: center;
+            font-weight: 600;
+            color: #8a2be2;
+        }
+
+        /* 生成按钮 */
+        .generate-btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #8a2be2, #6a1bb2);
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-size: 17px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 8px;
+        }
+
+        .generate-btn:hover {
+            background: linear-gradient(135deg, #9a3bf2, #7a2bc2);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(138, 43, 226, 0.4);
+        }
+
+        .generate-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .generate-btn .spinner {
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            display: none;
+        }
+
+        .generate-btn.loading .spinner {
+            display: block;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* 结果面板 */
+        .result-panel {
+            display: none;
+        }
+
+        .result-panel.show {
+            display: block;
+        }
+
+        .audio-player {
+            width: 100%;
+            margin: 16px 0;
+            border-radius: 10px;
+        }
+
+        .audio-player audio {
+            width: 100%;
+        }
+
+        .result-info {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .info-card {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            padding: 14px;
+            text-align: center;
+        }
+
+        .info-card .label {
+            font-size: 12px;
+            color: #888;
+            margin-bottom: 4px;
+        }
+
+        .info-card .value {
+            font-size: 18px;
+            font-weight: 700;
+            color: #00d4ff;
+        }
+
+        .download-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 24px;
+            background: rgba(0, 212, 255, 0.15);
+            border: 1px solid rgba(0, 212, 255, 0.4);
+            border-radius: 8px;
+            color: #00d4ff;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            margin-top: 16px;
+        }
+
+        .download-btn:hover {
+            background: rgba(0, 212, 255, 0.25);
+        }
+
+        /* 历史记录 */
+        .history-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .history-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 16px;
+            background: rgba(0, 0, 0, 0.15);
+            border-radius: 8px;
+            margin-bottom: 8px;
+            transition: background 0.3s;
+        }
+
+        .history-item:hover {
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        .history-item .name {
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .history-item .meta {
+            font-size: 12px;
+            color: #888;
+        }
+
+        .history-item .actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .history-item .actions button {
+            padding: 6px 12px;
+            background: rgba(138, 43, 226, 0.2);
+            border: 1px solid rgba(138, 43, 226, 0.3);
+            border-radius: 6px;
+            color: #ccc;
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+        .history-item .actions button:hover {
+            background: rgba(138, 43, 226, 0.4);
+        }
+
+        /* 错误提示 */
+        .error-msg {
+            background: rgba(255, 50, 50, 0.1);
+            border: 1px solid rgba(255, 50, 50, 0.3);
+            border-radius: 10px;
+            padding: 14px 18px;
+            color: #ff6b6b;
+            margin-top: 16px;
+            display: none;
+        }
+
+        .error-msg.show {
+            display: block;
+        }
+
+        /* 页脚 */
+        .footer {
+            text-align: center;
+            padding: 24px;
+            color: #555;
+            font-size: 13px;
+        }
+
+        /* 响应式 */
+        @media (max-width: 768px) {
+            .style-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .form-row, .form-row-3 {
+                grid-template-columns: 1fr;
+            }
+            .result-info {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 头部 -->
+    <header class="header">
+        <div class="logo">
+            <div class="logo-icon">🎵</div>
+            <div>
+                <h1>BeatForge AI</h1>
+                <span>AI电音制作工作站 v0.1.0</span>
+            </div>
+        </div>
+        <div id="statusBadge" class="status-badge offline">
+            <div class="status-dot offline"></div>
+            <span>检查连接中...</span>
+        </div>
+    </header>
+
+    <!-- 主内容 -->
+    <main class="main">
+        <!-- AI生成面板 -->
+        <div class="panel">
+            <div class="panel-title">
+                <span class="icon">🤖</span>
+                AI电音生成
+            </div>
+
+            <!-- 提示词输入 -->
+            <div class="form-group">
+                <label>🎤 音乐描述提示词</label>
+                <textarea id="promptInput" placeholder="描述你想要的电音风格，例如：energetic drop with heavy bass and synth leads, festival vibes"></textarea>
+            </div>
+
+            <!-- 风格选择 -->
+            <div class="form-group">
+                <label>🎹 电音风格</label>
+                <div class="style-grid" id="styleGrid">
+                    <!-- 动态填充 -->
+                </div>
+            </div>
+
+            <!-- 参数控制 -->
+            <div class="form-row-3">
+                <div class="form-group">
+                    <label>⏱️ BPM (节拍速度)</label>
+                    <div class="slider-container">
+                        <input type="range" id="bpmSlider" min="60" max="200" value="128">
+                        <span class="slider-value" id="bpmValue">128</span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>⏳ 时长 (秒)</label>
+                    <div class="slider-container">
+                        <input type="range" id="durationSlider" min="5" max="30" value="10">
+                        <span class="slider-value" id="durationValue">10s</span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>⚡ 能量强度</label>
+                    <div class="slider-container">
+                        <input type="range" id="energySlider" min="0" max="100" value="70">
+                        <span class="slider-value" id="energyValue">70%</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>🎼 调式</label>
+                    <select id="keySelect">
+                        <option value="C">C 大调</option>
+                        <option value="D">D 大调</option>
+                        <option value="E">E 大调</option>
+                        <option value="F">F 大调</option>
+                        <option value="G">G 大调</option>
+                        <option value="A">A 大调</option>
+                        <option value="B">B 大调</option>
+                        <option value="Am">A 小调</option>
+                        <option value="Dm">D 小调</option>
+                        <option value="Em">E 小调</option>
+                    </select>
+                </div>
+                <div class="form-group" style="display:flex; align-items:flex-end;">
+                    <button class="generate-btn" id="generateBtn" onclick="generateMusic()">
+                        <span class="spinner"></span>
+                        <span class="btn-text">🚀 开始生成</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- 错误提示 -->
+            <div class="error-msg" id="errorMsg"></div>
+        </div>
+
+        <!-- 结果面板 -->
+        <div class="panel result-panel" id="resultPanel">
+            <div class="panel-title">
+                <span class="icon">🎧</span>
+                生成结果
+            </div>
+
+            <div class="audio-player">
+                <audio id="audioPlayer" controls></audio>
+            </div>
+
+            <div class="result-info">
+                <div class="info-card">
+                    <div class="label">生成耗时</div>
+                    <div class="value" id="genTime">-</div>
+                </div>
+                <div class="info-card">
+                    <div class="label">音频时长</div>
+                    <div class="value" id="audioDuration">-</div>
+                </div>
+                <div class="info-card">
+                    <div class="label">使用设备</div>
+                    <div class="value" id="deviceInfo">-</div>
+                </div>
+            </div>
+
+            <a class="download-btn" id="downloadBtn" href="#" download>
+                📥 下载WAV文件
+            </a>
+        </div>
+
+        <!-- 历史记录 -->
+        <div class="panel">
+            <div class="panel-title">
+                <span class="icon">📋</span>
+                生成历史
+            </div>
+            <div class="history-list" id="historyList">
+                <div style="text-align:center; color:#666; padding:20px;">
+                    暂无生成记录，开始创作你的第一首电音吧！
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- 页脚 -->
+    <footer class="footer">
+        BeatForge AI © 2024 | Powered by Meta MusicGen | Made with ❤️
+    </footer>
+
+    <script>
+        const API_BASE = window.location.origin + '/api';
+        let selectedStyle = 'house';
+        let generationHistory = [];
+
+        // ========== 初始化 ==========
+        document.addEventListener('DOMContentLoaded', () => {
+            loadStyles();
+            checkHealth();
+            setupSliders();
+        });
+
+        // ========== 健康检查 ==========
+        async function checkHealth() {
+            const badge = document.getElementById('statusBadge');
+            try {
+                const res = await fetch(`${API_BASE}/health`);
+                const data = await res.json();
+                badge.className = 'status-badge online';
+                badge.innerHTML = `
+                    <div class="status-dot online"></div>
+                    <span>服务在线 (${data.device})</span>
+                `;
+            } catch (e) {
+                badge.className = 'status-badge offline';
+                badge.innerHTML = `
+                    <div class="status-dot offline"></div>
+                    <span>服务离线</span>
+                `;
+            }
+        }
+
+        // ========== 加载风格 ==========
+        async function loadStyles() {
+            const grid = document.getElementById('styleGrid');
+            try {
+                const res = await fetch(`${API_BASE}/ai/styles`);
+                const data = await res.json();
+                
+                grid.innerHTML = data.styles.map(style => `
+                    <div class="style-card ${style.id === selectedStyle ? 'active' : ''}" 
+                         onclick="selectStyle('${style.id}', this)"
+                         title="${style.description}">
+                        <div class="name">${style.name}</div>
+                        <div class="desc">${style.bpm_range[0]}-${style.bpm_range[1]} BPM</div>
+                    </div>
+                `).join('');
+            } catch (e) {
+                // 使用默认风格
+                const defaultStyles = [
+                    { id: 'house', name: 'House', desc: '120-130 BPM' },
+                    { id: 'techno', name: 'Techno', desc: '125-140 BPM' },
+                    { id: 'dubstep', name: 'Dubstep', desc: '138-142 BPM' },
+                    { id: 'trance', name: 'Trance', desc: '128-140 BPM' },
+                    { id: 'ambient', name: 'Ambient', desc: '60-100 BPM' },
+                    { id: 'drum_and_bass', name: 'D&B', desc: '160-180 BPM' },
+                    { id: 'edm', name: 'EDM', desc: '126-132 BPM' },
+                    { id: 'lo_fi', name: 'Lo-Fi', desc: '70-90 BPM' },
+                ];
+                grid.innerHTML = defaultStyles.map(s => `
+                    <div class="style-card ${s.id === selectedStyle ? 'active' : ''}" 
+                         onclick="selectStyle('${s.id}', this)">
+                        <div class="name">${s.name}</div>
+                        <div class="desc">${s.desc}</div>
+                    </div>
+                `).join('');
+            }
+        }
+
+        function selectStyle(styleId, el) {
+            selectedStyle = styleId;
+            document.querySelectorAll('.style-card').forEach(c => c.classList.remove('active'));
+            el.classList.add('active');
+        }
+
+        // ========== 滑块控制 ==========
+        function setupSliders() {
+            const bpmSlider = document.getElementById('bpmSlider');
+            const durationSlider = document.getElementById('durationSlider');
+            const energySlider = document.getElementById('energySlider');
+
+            bpmSlider.oninput = () => {
+                document.getElementById('bpmValue').textContent = bpmSlider.value;
+            };
+            durationSlider.oninput = () => {
+                document.getElementById('durationValue').textContent = durationSlider.value + 's';
+            };
+            energySlider.oninput = () => {
+                document.getElementById('energyValue').textContent = energySlider.value + '%';
+            };
+        }
+
+        // ========== 生成音乐 ==========
+        async function generateMusic() {
+            const prompt = document.getElementById('promptInput').value.trim();
+            if (!prompt) {
+                showError('请输入音乐描述提示词！');
+                return;
+            }
+
+            const btn = document.getElementById('generateBtn');
+            const errorMsg = document.getElementById('errorMsg');
+            errorMsg.classList.remove('show');
+
+            // 禁用按钮，显示加载
+            btn.disabled = true;
+            btn.classList.add('loading');
+            btn.querySelector('.btn-text').textContent = '生成中，请稍候...';
+
+            const requestBody = {
+                prompt: prompt,
+                style: selectedStyle,
+                bpm: parseInt(document.getElementById('bpmSlider').value),
+                duration: parseInt(document.getElementById('durationSlider').value),
+                key: document.getElementById('keySelect').value,
+                energy: parseInt(document.getElementById('energySlider').value) / 100.0,
+            };
+
+            try {
+                const res = await fetch(`${API_BASE}/ai/generate`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(requestBody),
+                });
+
+                const data = await res.json();
+
+                if (data.success) {
+                    showResult(data);
+                    addToHistory(data, requestBody);
+                } else {
+                    showError(data.message || '生成失败，请重试');
+                }
+            } catch (e) {
+                showError(`请求失败: ${e.message}。请确保后端服务已启动。`);
+            } finally {
+                btn.disabled = false;
+                btn.classList.remove('loading');
+                btn.querySelector('.btn-text').textContent = '🚀 开始生成';
+            }
+        }
+
+        // ========== 显示结果 ==========
+        function showResult(data) {
+            const panel = document.getElementById('resultPanel');
+            panel.classList.add('show');
+
+            // 音频播放器
+            const audioUrl = window.location.origin + data.download_url;
+            const player = document.getElementById('audioPlayer');
+            player.src = audioUrl;
+
+            // 信息卡片
+            document.getElementById('genTime').textContent = data.generation_time + 's';
+            document.getElementById('audioDuration').textContent = data.duration + 's';
+            document.getElementById('deviceInfo').textContent = 
+                data.metadata ? data.metadata.device.toUpperCase() : '-';
+
+            // 下载按钮
+            const downloadBtn = document.getElementById('downloadBtn');
+            downloadBtn.href = audioUrl;
+            downloadBtn.download = data.filename;
+
+            // 滚动到结果
+            panel.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // ========== 历史记录 ==========
+        function addToHistory(data, request) {
+            generationHistory.unshift({
+                filename: data.filename,
+                url: data.download_url,
+                style: request.style,
+                prompt: request.prompt,
+                duration: data.duration,
+                time: new Date().toLocaleTimeString(),
+            });
+
+            renderHistory();
+        }
+
+        function renderHistory() {
+            const list = document.getElementById('historyList');
+            if (generationHistory.length === 0) {
+                list.innerHTML = '<div style="text-align:center;color:#666;padding:20px;">暂无记录</div>';
+                return;
+            }
+
+            list.innerHTML = generationHistory.map((item, i) => `
+                <div class="history-item">
+                    <div>
+                        <div class="name">${item.style.toUpperCase()} - ${item.prompt.substring(0, 30)}...</div>
+                        <div class="meta">${item.time} | ${item.duration}s</div>
+                    </div>
+                    <div class="actions">
+                        <button onclick="playHistoryItem(${i})">▶ 播放</button>
+                        <button onclick="downloadHistoryItem(${i})">📥 下载</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function playHistoryItem(index) {
+            const item = generationHistory[index];
+            const player = document.getElementById('audioPlayer');
+            player.src = window.location.origin + item.url;
+            player.play();
+            document.getElementById('resultPanel').classList.add('show');
+        }
+
+        function downloadHistoryItem(index) {
+            const item = generationHistory[index];
+            const a = document.createElement('a');
+            a.href = window.location.origin + item.url;
+            a.download = item.filename;
+            a.click();
+        }
+
+        // ========== 错误提示 ==========
+        function showError(msg) {
+            const el = document.getElementById('errorMsg');
+            el.textContent = msg;
+            el.classList.add('show');
+            setTimeout(() => el.classList.remove('show'), 8000);
+        }
+    </script>
+</body>
+</html>

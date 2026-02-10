@@ -1,0 +1,27 @@
+# BeatForge AI - Docker Compose 开发环境
+version: '3.8'
+
+services:
+  beatforge:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/app/backend
+      - ./frontend:/app/frontend
+      - ./storage:/app/storage
+    environment:
+      - HOST=0.0.0.0
+      - PORT=8000
+      - DEBUG=true
+      - MODEL_NAME=facebook/musicgen-small
+    # 如果有NVIDIA GPU，取消下面的注释
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: 1
+    #           capabilities: [gpu]

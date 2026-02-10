@@ -1,0 +1,23 @@
+# Web框架
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+python-multipart==0.0.6
+
+# AI模型
+torch>=2.0.0
+transformers>=4.36.0
+
+# 音频处理
+scipy>=1.11.0
+soundfile>=0.12.1
+librosa>=0.10.1
+
+# 数据模型
+pydantic>=2.5.0
+
+# 跨域支持
+# (fastapi内置CORSMiddleware)
+
+# 工具
+python-dotenv>=1.0.0
+aiofiles>=23.2.1

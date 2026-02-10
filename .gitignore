@@ -1,0 +1,127 @@
+# ========================
+# BeatForge AI .gitignore
+# ========================
+
+# -------- Python --------
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg-info/
+*.egg
+dist/
+build/
+*.whl
+*.manifest
+*.spec
+pip-log.txt
+pip-delete-this-directory.txt
+
+# 虚拟环境
+venv/
+env/
+.venv/
+ENV/
+
+# PyInstaller
+*.manifest
+*.spec
+
+# Cython
+cython_debug/
+
+# -------- AI/ML 模型 --------
+# HuggingFace模型缓存（非常大，不要提交）
+models_cache/
+.cache/
+*.bin
+*.safetensors
+*.onnx
+*.pt
+*.pth
+*.h5
+!requirements.txt
+
+# -------- 音频文件 --------
+# 生成的音频不提交（太大）
+storage/audio/*.wav
+storage/audio/*.mp3
+storage/audio/*.flac
+storage/audio/*.ogg
+storage/temp/
+
+# -------- 环境变量 --------
+.env
+.env.local
+.env.production
+.env.*.local
+
+# -------- IDE / 编辑器 --------
+# VSCode
+.vscode/
+*.code-workspace
+
+# JetBrains (PyCharm)
+.idea/
+*.iml
+*.iws
+*.ipr
+
+# Vim
+*.swp
+*.swo
+*~
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# -------- OS 系统文件 --------
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+*.lnk
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.Spotlight-V100
+.Trashes
+
+# Linux
+*~
+.directory
+
+# -------- Docker --------
+# Docker数据卷（如果本地挂载）
+docker-data/
+
+# -------- 日志 --------
+*.log
+logs/
+*.log.*
+
+# -------- 测试 --------
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.nox/
+
+# -------- 杂项 --------
+# Jupyter Notebook
+.ipynb_checkpoints/
+
+# mypy
+.mypy_cache/
+
+# 临时文件
+*.tmp
+*.bak
+*.orig
+temp/
+tmp/
